@@ -1,0 +1,230 @@
+#ifndef _OBJECTS_H_
+#define _OBJECTS_H_
+
+#include "FuncArgs.h"
+#include "CodeTree.h"
+#include "CGTShare.h"
+#include <string>
+#include <list>
+
+typedef struct {
+	const char *name;
+	int count;
+	bool field;
+} TSORecord;
+
+class TArgs;
+
+class TScriptObject {
+protected:
+	int ref;
+	char *name;
+	TSORecord *mtdNames;
+	int count;
+	TValue *nameValue;
+	
+	TSORecord makeMethod(const char *n, int c);
+	TSORecord makeField(const char *n);
+public:
+	TScriptObject(const char *_name);
+	virtual ~TScriptObject();
+
+	inline void incRef() {
+		ref++;
+	}
+
+	inline void decRef() {
+		ASSERT(ref, "Try to remove object with ref = 0")
+		ref--;
+	}
+
+	inline bool isDeletable() {
+		return ref != -1;
+	}
+
+	inline bool isDelete() {
+		return ref == 0;
+	}
+	
+	inline int refs() {
+		return ref;
+	}
+	
+	bool isObject(const char *name) { return strcasecmp(this->name, name) == 0; }
+
+	virtual script_proc getProc(TValue *val, Context &context);
+	virtual bool isField(script_proc index, Context &context);
+	virtual TValue *execMethod(TTreeNode *node, long index, Context &context) = 0;
+	
+	virtual TValue *getName();
+	
+	virtual TValue *putStream(TValue *value) { return new TValue(); }
+	
+	virtual void create(TTreeNode *node, Context &context) {}
+};
+
+class TBlockItem {
+private:
+	int expand;
+public:
+	char *name;
+	TValue **items;
+	int count;
+
+	TBlockItem(const char *name);
+	~TBlockItem();
+
+	void addValue(TValue *item);
+	std::string asText();
+	std::string asCode();
+};
+
+class TBlockItemObject : public TScriptObject {
+private:
+	std::string level;
+	bool firstPrint;
+	
+	void print(TArgs *args);
+	void save(const char *fname, bool resource);
+	void copyHere(TArgs *args);
+public:
+	TBlockItem *block;
+
+	TBlockItemObject(const char *name);
+	~TBlockItemObject();
+
+	TValue *execMethod(TTreeNode *node, long index, Context &context);
+	TValue *putStream(TValue *value);
+};
+
+class TBlockObject : public TScriptObject {
+private:
+	typedef std::list<TBlockItemObject *> TBlockItems;
+	TBlockItems items;
+	int regIndex;
+
+	void addValue(TValue *item);
+	TBlockItemObject *regBlock(const char *name);
+	bool removeBlock(const char *name);
+public:
+	TBlockObject();
+	~TBlockObject();
+
+	TBlockItemObject *searchBlock(const char *name);
+
+	TValue *execMethod(TTreeNode *node, long index, Context &context);
+};
+
+class TLngObject : public TScriptObject {
+private:
+public:
+	TLngObject();
+
+	TValue *execMethod(TTreeNode *node, long index, Context &context);
+};
+
+class TUnitNode;
+class TSysObject : public TScriptObject {
+private:
+public:
+	TUnitNode *root;
+	
+	TSysObject();
+	~TSysObject() { CG_LOG_END }
+	TValue *execMethod(TTreeNode *node, long index, Context &context);
+	script_proc getProc(TValue *val, Context &context);
+	bool isField(script_proc index, Context &context);
+};
+
+class TElementObject : public TScriptObject {
+private:
+	id_element element;
+	
+	void initMap();
+public:
+	TElementObject();
+	TElementObject(id_element element);
+	~TElementObject() { CG_LOG_END }
+
+	TValue *execMethod(TTreeNode *node, long index, Context &context);
+	script_proc getProc(TValue *val, Context &context);
+	bool isField(script_proc index, Context &context);
+};
+
+class TPointObject : public TScriptObject {
+private:
+	id_point point;
+public:
+	TPointObject(id_point point);
+	~TPointObject() { CG_LOG_END }
+
+	TValue *execMethod(TTreeNode *node, long index, Context &context);
+};
+
+class TPropertyObject : public TScriptObject {
+private:
+	id_prop prop;
+	id_element element;
+	
+	TValue *read();
+public:
+	TPropertyObject(id_element parent, id_prop prop);
+	~TPropertyObject() { CG_LOG_END }
+
+	TValue *execMethod(TTreeNode *node, long index, Context &context);
+	TValue *getName();
+};
+
+class TSDKObject : public TScriptObject {
+private:
+	id_sdk sdk;
+
+	void initMap();
+	void initAll();
+public:
+	TSDKObject(id_sdk sdk);
+	~TSDKObject() { CG_LOG_END }
+
+	TValue *execMethod(TTreeNode *node, long index, Context &context);
+};
+
+class TArgsObject : public TScriptObject {
+private:
+public:
+	TArgsObject();
+
+	TValue *execMethod(TTreeNode *node, long index, Context &context);
+	script_proc getProc(TValue *val, Context &context);
+	bool isField(script_proc index, Context &context);
+};
+
+class TArrayObject : public TScriptObject {
+private:
+	std::vector<TValue*> list;
+	
+	void clear();
+	TValue *join(TValue *delimiter);
+	bool contain(TValue *value);
+public:
+	TArrayObject();
+	~TArrayObject();
+
+	TValue *execMethod(TTreeNode *node, long index, Context &context);
+	void create(TTreeNode *node, Context &context);
+	
+	static TScriptObject *createInstance() { return new TArrayObject();  }
+	
+	void add(TValue *value);
+};
+
+extern TScriptObject **objs;
+
+void initObjects();
+TScriptObject *searchObject(const char *name);
+TScriptObject *copyObject(TScriptObject *obj);
+
+void deleteObject(TScriptObject *obj);
+void clearObjects();
+TScriptObject *createObject(const char *name, TTreeNode *node, Context &context);
+
+#endif
