@@ -1,6 +1,6 @@
 CC = g++
 
-CPPFLAGS = -fPIC
+CPPFLAGS = -fPIC --std=c++11
 LDLIBS = -shared
 
 SOURCES = $(wildcard *.cpp)
@@ -14,5 +14,4 @@ clean:
 $(APP): $(SOURCES:%.cpp=%.o)
 	$(LINK.o) $^ $(LDLIBS) -o libCodeGen.so
 	strip libCodeGen.so
-	cp libCodeGen.so /home/dilma/workspace/hiasm5/packs/fpc/
-	cp libCodeGen.so /home/dilma/workspace/hiasm5/packs/lazarus/
+
