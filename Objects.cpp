@@ -240,7 +240,7 @@ TValue *TBlockItemObject::execMethod(TTreeNode *node, long index, Context &conte
 
 TValue *TBlockItemObject::putStream(TValue *value) {
 	TArgs *args = new TArgs();
-	args->add(value);
+	args->add(value->duplicate());
 	print(args);
 	delete args;
 	
