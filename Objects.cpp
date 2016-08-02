@@ -238,9 +238,9 @@ TValue *TBlockItemObject::execMethod(TTreeNode *node, long index, Context &conte
 	CG_LOG_RETURN(new TValue((TScriptObject *)this))
 }
 
-TValue *TBlockItemObject::putStream(TValue *value) {
+TValue *TBlockItemObject::putStream(TTreeNode *node, TValue *value, Context &context) {
 	TArgs *args = new TArgs();
-	args->add(value->duplicate());
+    args->add(value->duplicate());
 	print(args);
 	delete args;
 	

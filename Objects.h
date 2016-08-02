@@ -58,7 +58,7 @@ public:
 	
 	virtual TValue *getName();
 	
-	virtual TValue *putStream(TValue *value) { return new TValue(); }
+	virtual TValue *putStream(TTreeNode *node, TValue *value, Context &context) { return new TValue(); }
 	
 	virtual void create(TTreeNode *node, Context &context) {}
 };
@@ -94,7 +94,7 @@ public:
 	~TBlockItemObject();
 
 	TValue *execMethod(TTreeNode *node, long index, Context &context);
-	TValue *putStream(TValue *value);
+	TValue *putStream(TTreeNode *node, TValue *value, Context &context);
 };
 
 class TBlockObject : public TScriptObject {

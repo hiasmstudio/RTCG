@@ -926,7 +926,7 @@ TValue *TShiftLeftNode::run(Context &context) {
 	TValue *op2 = childs[1]->run(context);
 	TValue *result = NULL;
 	if(op1->isObject()) {
-		result = op1->toScriptObj()->putStream(op2);
+		result = op1->toScriptObj()->putStream(this, op2, context);
 	}
 	else {
 		result = new TValue(op1->toInt() << op2->toInt());
