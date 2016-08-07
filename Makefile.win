@@ -1,0 +1,16 @@
+CC = g++
+
+CPPFLAGS = -fPIC -std=gnu++11 -DBUILDING_DLL
+LDLIBS = -shared
+
+SOURCES = $(wildcard *.cpp)
+APP = codegen
+
+all: $(APP)
+
+clean:
+	del CodeGen.dll *.o
+
+$(APP): $(SOURCES:%.cpp=%.o)
+	$(LINK.o) $^ $(LDLIBS) -o CodeGen.dll
+	strip CodeGen.dll
