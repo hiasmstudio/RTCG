@@ -13,6 +13,7 @@ const char *procNames[PROC_COUNT] = {
 };
 
 const char *stringLexem = "'";
+const char *concatLexem = " + ";
 
 TVarsList *gvars = new TVarsList();
 int globalRef = 0;
@@ -382,7 +383,7 @@ const char *TArray::toCode() {
 		if(v->getType() == DATA_STR && !(v->flags & FLG_CODE)) {
 			if(!open) {
 				if(i && !(v->flags & FLG_WO_OP)) {
-					buf.append(" + ");
+					buf.append(concatLexem);
 				}
 				buf.append(stringLexem);
 				open = true;
@@ -394,7 +395,7 @@ const char *TArray::toCode() {
 				open = false;
 			}
 			if(!(v->flags & FLG_WO_OP))
-				buf.append(" + ");
+				buf.append(concatLexem);
 		}
 		buf.append(v->toStr());
 	}
