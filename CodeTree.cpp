@@ -773,6 +773,13 @@ TValue *TArrIndexNode::run(Context &context) {
 				result = new TValue();
 			break;
 		}
+		case DATA_OBJECT: {
+			TArrayObject *obj = dynamic_cast<TArrayObject*>(val->toScriptObj());
+			if(obj) {
+				result = obj->get(index->toInt());
+			}
+			break;
+		}
 		default:
 			result = new TValue();
 	}

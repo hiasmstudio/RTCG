@@ -779,7 +779,7 @@ TArrayObject::TArrayObject() : TScriptObject("array") {
 	CG_LOG_BEGIN
 
 	ref = 0;
-	count = 8;
+	count = 9;
 	mtdNames = (TSORecord*) malloc(sizeof (TSORecord) * count);
 	mtdNames[0] = makeMethod("add", -1);
 	mtdNames[1] = makeMethod("insert", 2);
@@ -789,6 +789,7 @@ TArrayObject::TArrayObject() : TScriptObject("array") {
 	mtdNames[5] = makeMethod("size", 0);
 	mtdNames[6] = makeMethod("join", 1);
 	mtdNames[7] = makeMethod("contain", 1);
+	mtdNames[8] = makeMethod("set", 2);
 }
 
 TArrayObject::~TArrayObject() {
@@ -825,6 +826,15 @@ bool TArrayObject::contain(TValue *value) {
 
 void TArrayObject::add(TValue *value) {
 	list.push_back(value);
+}
+
+TValue *TArrayObject::get(int index) {
+	if(index >= 0 && index < list.size()) {
+		return list.at(index)->duplicate();
+	}
+	else {
+		return new TValue();
+	}
 }
 
 void TArrayObject::create(TTreeNode *node, Context &context) {
@@ -866,13 +876,7 @@ TValue *TArrayObject::execMethod(TTreeNode *node, long index, Context &context) 
 			}
 		}
 		case 3: {
-			int i = context.args->value(0)->toInt();
-			if(i >= 0 && i < list.size()) {
-				CG_LOG_RETURN(list.at(i)->duplicate())
-			}
-			else {
-				CG_LOG_RETURN(new TValue())
-			}
+			CG_LOG_RETURN(this->get(context.args->value(0)->toInt()))
 		}
 		case 4:
 			clear();
@@ -883,6 +887,15 @@ TValue *TArrayObject::execMethod(TTreeNode *node, long index, Context &context) 
 			CG_LOG_RETURN(join(context.args->value(0)))
 		case 7:
 			CG_LOG_RETURN(new TValue(contain(context.args->value(0))))
+		case 8: {
+			int i = context.args->value(0)->toInt();
+			TValue *value = context.args->value(1);
+			if(i >= 0 && i < list.size()) {
+				TValue::free(list.at(i));
+				list.at(i) = value;
+			}
+			CG_LOG_RETURN(value->duplicate())
+		}
 	}
 	CG_LOG_RETURN(new TValue())
 }

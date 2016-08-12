@@ -215,6 +215,7 @@ public:
 	static TScriptObject *createInstance() { return new TArrayObject();  }
 	
 	void add(TValue *value);
+	TValue *get(int index);
 };
 
 extern TScriptObject **objs;
