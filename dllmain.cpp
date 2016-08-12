@@ -17,6 +17,8 @@ DLLIMPORT int buildPrepareProc(TBuildPrepareRec *params) {
 }
 
 void eraseData(id_sdk sdk) {
+	CG_LOG_BEGIN
+
 	for(int i = 0; i < cgt->sdkGetCount(sdk); i++) {
 		id_element e = cgt->sdkGetElement(sdk, i);
 		ElementData *data = (ElementData *)cgt->elGetData(e);
@@ -29,6 +31,8 @@ void eraseData(id_sdk sdk) {
 			eraseData(cgt->elGetSDK(e));
 		}
 	}
+
+	CG_LOG_END
 }
 
 DLLIMPORT int buildProcessProc(TBuildProcessRec *params) {
