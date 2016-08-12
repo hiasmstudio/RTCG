@@ -549,12 +549,26 @@ void _subValue(TValue *result, TValue *op1, TValue *op2) {
 TValue *TSubNode::run(Context &context) {
 	CG_LOG_BEGIN
 
-	TValue *op1 = childs[0]->run(context);
-	TValue *op2 = childs[1]->run(context);
 	TValue *result = new TValue();
-	_subValue(result, op1, op2);
-	TValue::free(op1);
-	TValue::free(op2);
+	if(this->count == 1) {
+		TValue *op1 = childs[0]->run(context);
+		switch (op1->getType()) {
+			case DATA_INT:
+				result->setValue(-op1->toInt());
+				break;
+			case DATA_REAL:
+				result->setValue(-op1->toReal());
+				break;
+		}
+		TValue::free(op1);
+	}
+	else {
+		TValue *op1 = childs[0]->run(context);
+		TValue *op2 = childs[1]->run(context);
+		_subValue(result, op1, op2);
+		TValue::free(op1);
+		TValue::free(op2);
+	}
 
 	CG_LOG_RETURN(result)
 }

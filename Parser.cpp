@@ -571,7 +571,17 @@ int TParser::level8(TTreeNode *node, TTreeNode **rnode) { // !, not, -, $
 		if (getToken()) CG_LOG_RETURN(EXP_ERROR)
 		CG_LOG_RETURN(EXP_EXP)
 		//int ret = level9(node, rnode);
-	} else if (tokType == TokName && strcmp(token, "not") == 0) {
+	}
+	else if (tokType == TokMtSub) {
+		if (getToken()) CG_LOG_RETURN(EXP_ERROR)
+		if (level9(node, rnode) & (EXP_ERROR | EXP_EMPTY)) CG_LOG_RETURN(EXP_ERROR)
+		nd = *rnode;
+		*rnode = new TSubNode();
+		(*rnode)->addNode(nd);
+
+		CG_LOG_RETURN(EXP_EXP)
+	}
+	else if (tokType == TokName && strcmp(token, "not") == 0) {
 		if (getToken()) CG_LOG_RETURN(EXP_ERROR)
 		if (level9(node, rnode) & (EXP_ERROR | EXP_EMPTY)) CG_LOG_RETURN(EXP_ERROR)
 		nd = *rnode;
