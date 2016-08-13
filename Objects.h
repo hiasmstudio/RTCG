@@ -212,6 +212,8 @@ public:
 	TValue *execMethod(TTreeNode *node, long index, Context &context);
 	void create(TTreeNode *node, Context &context);
 	
+	TValue *putStream(TTreeNode *node, TValue *value, Context &context);
+	
 	static TScriptObject *createInstance() { return new TArrayObject();  }
 	
 	void add(TValue *value);

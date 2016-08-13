@@ -910,6 +910,13 @@ TValue *TArrayObject::execMethod(TTreeNode *node, long index, Context &context) 
 	CG_LOG_RETURN(new TValue())
 }
 
+TValue *TArrayObject::putStream(TTreeNode *node, TValue *value, Context &context) {
+	add(new TValue(value));
+	
+	return new TValue((TScriptObject *)this);
+}
+
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 TScriptObject *searchObject(const char *name) {
