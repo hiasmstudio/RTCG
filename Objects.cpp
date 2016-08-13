@@ -779,7 +779,7 @@ TArrayObject::TArrayObject() : TScriptObject("array") {
 	CG_LOG_BEGIN
 
 	ref = 0;
-	count = 9;
+	count = 10;
 	mtdNames = (TSORecord*) malloc(sizeof (TSORecord) * count);
 	mtdNames[0] = makeMethod("add", -1);
 	mtdNames[1] = makeMethod("insert", 2);
@@ -790,6 +790,7 @@ TArrayObject::TArrayObject() : TScriptObject("array") {
 	mtdNames[6] = makeMethod("join", 1);
 	mtdNames[7] = makeMethod("contain", 1);
 	mtdNames[8] = makeMethod("set", 2);
+	mtdNames[9] = makeMethod("fill", 2);
 }
 
 TArrayObject::~TArrayObject() {
@@ -895,6 +896,15 @@ TValue *TArrayObject::execMethod(TTreeNode *node, long index, Context &context) 
 				list.at(i) = value;
 			}
 			CG_LOG_RETURN(value->duplicate())
+		}
+		case 9: {
+			clear();
+			int amount = context.args->value(0)->toInt();
+			TValue *value = context.args->value(1);
+			for(int i = 0; i < amount; i++) {
+				add(value->duplicate());
+			}
+			CG_LOG_RETURN(new TValue(this))
 		}
 	}
 	CG_LOG_RETURN(new TValue())
