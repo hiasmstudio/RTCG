@@ -893,16 +893,16 @@ TValue *TArrayObject::execMethod(TTreeNode *node, long index, Context &context) 
 			TValue *value = context.args->value(1);
 			if(i >= 0 && i < list.size()) {
 				TValue::free(list.at(i));
-				list.at(i) = value;
+				list.at(i) = new TValue(value);
 			}
-			CG_LOG_RETURN(value->duplicate())
+			CG_LOG_RETURN(value)
 		}
 		case 9: {
 			clear();
 			int amount = context.args->value(0)->toInt();
 			TValue *value = context.args->value(1);
 			for(int i = 0; i < amount; i++) {
-				add(value->duplicate());
+				add(new TValue(value));
 			}
 			CG_LOG_RETURN(new TValue(this))
 		}
