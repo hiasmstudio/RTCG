@@ -11,11 +11,11 @@ int count = 0;
 
 #define RET_EMPTY return new TValue("");
 
-#ifdef BUILDING_DLL
-#define _NEW_LINE_ "\r\n"
-#else
+//#ifdef BUILDING_DLL
+//#define _NEW_LINE_ "\r\n"
+//#else
 #define _NEW_LINE_ "\n"
-#endif
+//#endif
 
 #define OBJ_COUNT 1
 
