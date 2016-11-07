@@ -1207,6 +1207,7 @@ int TParser::endLexem() {
 int TParser::createCodeTree(TTreeNode *node, const char *path, const char *file) {
 	CG_LOG_BEGIN
 
+	errCode = 0;
 	parseFile = file;
 	parsePath = path;
 	std::string fileName(path);
