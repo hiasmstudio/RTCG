@@ -459,12 +459,14 @@ struct Context {
 	void _exit() { breakLevel = 0xFFFF; }
 	
 	TValue* data() {
-		if(dataArgsIndex < args->size())
+		if(this->haveData())
 			return args->value(dataArgsIndex++)->duplicate();
 
 		return new TValue();
 	}
-
+	bool haveData() {
+		return dataArgsIndex < args->size() && args->value(dataArgsIndex)->getType() != DATA_NONE;
+	}
 };
 
 #endif

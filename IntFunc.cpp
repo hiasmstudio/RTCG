@@ -280,7 +280,7 @@ TValue *map_d(void *node, TArgs *args, Context &context) {
 	}
 
 	id_prop prop = cgt->getPropByName(context.element, name);
-	if(prop && !cgt->isDefProp(context.element, prop))
+	if(prop && (!cgt->isDefProp(context.element, prop) || !context.haveData()))
 		CG_LOG_RETURN(TValue::fromProperty(context.element, prop))
 
 	CG_LOG_RETURN(convert(context.data(), type, context))
