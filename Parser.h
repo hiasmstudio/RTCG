@@ -77,24 +77,24 @@ class TParser {
 	const char *parseFile;
     
     int level1(TTreeNode *node, TTreeNode **rnode);
-    int level1assign(TTreeNode *node, TTreeNode **rnode);  // =
-    int level2(TTreeNode *node, TTreeNode **rnode);  // & &&
-    int level3(TTreeNode *node, TTreeNode **rnode);  // or
-    int level3and(TTreeNode *node, TTreeNode **rnode);  // and
-    int level4(TTreeNode *node, TTreeNode **rnode);  // ==,<,>,<=,>=,!=
-    int level5(TTreeNode *node, TTreeNode **rnode);  // - +
-    int level6(TTreeNode *node, TTreeNode **rnode);  // * /
-    int level6shift(TTreeNode *node, TTreeNode **rnode);  // << >>
-    int level6bit(TTreeNode *node, TTreeNode **rnode);  // _or_ _and_
-    int level7(TTreeNode *node, TTreeNode **rnode);  // ?
-    int level8(TTreeNode *node, TTreeNode **rnode);  // !, not, -, $
-    int level9(TTreeNode *node, TTreeNode **rnode);  // ++, --
-	int level10direct(TTreeNode *node, TTreeNode **rnode); // ()
-    int level10(TTreeNode *node, TTreeNode **rnode); // ()
-    int level11(TTreeNode *node, TTreeNode **rnode); // []
+    int level_assign(TTreeNode *node, TTreeNode **rnode);  // =
+    int level_concat(TTreeNode *node, TTreeNode **rnode);  // & &&
+    int level_or(TTreeNode *node, TTreeNode **rnode);  // or
+    int level_and(TTreeNode *node, TTreeNode **rnode);  // and
+    int level_compare(TTreeNode *node, TTreeNode **rnode);  // ==,<,>,<=,>=,!=
+    int level_addsub(TTreeNode *node, TTreeNode **rnode);  // - +
+    int level_muldiv(TTreeNode *node, TTreeNode **rnode);  // * /
+    int level_shift(TTreeNode *node, TTreeNode **rnode);  // << >>
+    int level_bit(TTreeNode *node, TTreeNode **rnode);  // _or_ _and_
+    int level_ifelse(TTreeNode *node, TTreeNode **rnode);  // ?
+    int level_not(TTreeNode *node, TTreeNode **rnode);  // !, not, -, $
+    int level_incdec(TTreeNode *node, TTreeNode **rnode);  // ++, --
+	int level_call(TTreeNode *node, TTreeNode **rnode); // ()
+    int level_callfunc(TTreeNode *node, TTreeNode **rnode); // ()
+    int level_index(TTreeNode *node, TTreeNode **rnode); // []
     int level12(TTreeNode *node, TTreeNode **rnode); // :
-    int level13(TTreeNode *node, TTreeNode **rnode); // .
-    int level14(TTreeNode *node, TTreeNode **rnode);
+    int level_dot(TTreeNode *node, TTreeNode **rnode); // .
+    int level_var(TTreeNode *node, TTreeNode **rnode);
     
     bool isInternalFunc(const char *name, int *index);
     bool isScriptFunc(const char *name, TTreeNode **node);

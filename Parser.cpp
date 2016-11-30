@@ -307,17 +307,17 @@ int TParser::level1(TTreeNode *node, TTreeNode **rnode) {
 	*rnode = NULL;
 	if (getToken()) CG_LOG_RETURN(EXP_ERROR)
 
-	int ret = level1assign(node, rnode);
+	int ret = level_assign(node, rnode);
 	putToken();
 
 	CG_LOG_RETURN(ret)
 }
 
-int TParser::level1assign(TTreeNode *node, TTreeNode **rnode) { // =, -=, +=, *=, /=
+int TParser::level_assign(TTreeNode *node, TTreeNode **rnode) { // =, -=, +=, *=, /=
 	CG_LOG_BEGIN
 
 	TTreeNode *op = NULL;
-	int ret = level2(node, rnode);
+	int ret = level_concat(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	while (tokType == TokAssign || tokType == TokMtAddEq || tokType == TokMtSubEq || tokType == TokMtMulEq || tokType == TokMtDivEq) {
 		op = *rnode;
@@ -340,7 +340,7 @@ int TParser::level1assign(TTreeNode *node, TTreeNode **rnode) { // =, -=, +=, *=
 		}
 		(*rnode)->addNode(op);
 		if (getToken()) CG_LOG_RETURN(SYN_ERROR)
-		ret = level2(node, &op);
+		ret = level_concat(node, &op);
 
 		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
 		ret = EXP_EXP;
@@ -349,18 +349,18 @@ int TParser::level1assign(TTreeNode *node, TTreeNode **rnode) { // =, -=, +=, *=
 	CG_LOG_RETURN(ret)
 }
 
-int TParser::level2(TTreeNode *node, TTreeNode **rnode) { // & &&
+int TParser::level_concat(TTreeNode *node, TTreeNode **rnode) { // & &&
 	CG_LOG_BEGIN
 
 	TTreeNode *op = NULL;
-	int ret = level3(node, rnode);
+	int ret = level_or(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	while (tokType == TokComAnd || tokType == TokComDAnd) {
 		op = *rnode;
 		*rnode = new TComAndNode(tokType == TokComAnd);
 		(*rnode)->addNode(op);
 		if (getToken()) CG_LOG_RETURN(SYN_ERROR)
-		ret = level3(node, &op);
+		ret = level_or(node, &op);
 
 		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
 		ret = EXP_EXP;
@@ -370,18 +370,18 @@ int TParser::level2(TTreeNode *node, TTreeNode **rnode) { // & &&
 	CG_LOG_RETURN(ret)
 }
 
-int TParser::level3(TTreeNode *node, TTreeNode **rnode) { // or
+int TParser::level_or(TTreeNode *node, TTreeNode **rnode) { // or
 	CG_LOG_BEGIN
 
 	TTreeNode *op = NULL;
-	int ret = level3and(node, rnode);
+	int ret = level_and(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	while (tokType == TokName && strcmp(rtoken, "or") == 0) {
 		op = *rnode;
 		*rnode = new TOrNode();
 		(*rnode)->addNode(op);
 		if (getToken()) CG_LOG_RETURN(SYN_ERROR)
-		ret = level3and(node, &op);
+		ret = level_and(node, &op);
 
 		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
 		ret = EXP_EXP;
@@ -391,18 +391,18 @@ int TParser::level3(TTreeNode *node, TTreeNode **rnode) { // or
 	CG_LOG_RETURN(ret)
 }
 
-int TParser::level3and(TTreeNode *node, TTreeNode **rnode) { // and
+int TParser::level_and(TTreeNode *node, TTreeNode **rnode) { // and
 	CG_LOG_BEGIN
 
 	TTreeNode *op = NULL;
-	int ret = level4(node, rnode);
+	int ret = level_compare(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	while (tokType == TokName && strcmp(rtoken, "and") == 0) {
 		op = *rnode;
 		*rnode = new TAndNode();
 		(*rnode)->addNode(op);
 		if (getToken()) CG_LOG_RETURN(SYN_ERROR)
-		ret = level4(node, &op);
+		ret = level_compare(node, &op);
 
 		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
 		ret = EXP_EXP;
@@ -412,11 +412,11 @@ int TParser::level3and(TTreeNode *node, TTreeNode **rnode) { // and
 	CG_LOG_RETURN(ret)
 }
 
-int TParser::level4(TTreeNode *node, TTreeNode **rnode) { // =,<,>,<=,>=,!=
+int TParser::level_compare(TTreeNode *node, TTreeNode **rnode) { // =,<,>,<=,>=,!=
 	CG_LOG_BEGIN
 
 	TTreeNode *op = NULL;
-	int ret = level5(node, rnode);
+	int ret = level_addsub(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	while ((tokType == TokSymEq && node) || tokType == TokSymLesThen || tokType == TokSymSmalThen ||
 			tokType == TokSymLesThenEq || tokType == TokSymSmalThenEq || tokType == TokSymNEq) {
@@ -437,7 +437,7 @@ int TParser::level4(TTreeNode *node, TTreeNode **rnode) { // =,<,>,<=,>=,!=
 		}
 		(*rnode)->addNode(op);
 		if (getToken()) CG_LOG_RETURN(SYN_ERROR)
-		ret = level5(node, &op);
+		ret = level_addsub(node, &op);
 
 		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
 		ret = EXP_EXP;
@@ -447,11 +447,11 @@ int TParser::level4(TTreeNode *node, TTreeNode **rnode) { // =,<,>,<=,>=,!=
 	CG_LOG_RETURN(ret)
 }
 
-int TParser::level5(TTreeNode *node, TTreeNode **rnode) { // - +
+int TParser::level_addsub(TTreeNode *node, TTreeNode **rnode) { // - +
 	CG_LOG_BEGIN
 
 	TTreeNode *op = NULL;
-	int ret = level6(node, rnode);
+	int ret = level_muldiv(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	while (tokType == TokMtSub || tokType == TokMtAdd) {
 		op = *rnode;
@@ -461,7 +461,7 @@ int TParser::level5(TTreeNode *node, TTreeNode **rnode) { // - +
 
 		(*rnode)->addNode(op);
 		if (getToken()) CG_LOG_RETURN(SYN_ERROR)
-		ret = level6(node, &op);
+		ret = level_muldiv(node, &op);
 
 		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
 		ret = EXP_EXP;
@@ -471,11 +471,11 @@ int TParser::level5(TTreeNode *node, TTreeNode **rnode) { // - +
 	CG_LOG_RETURN(ret)
 }
 
-int TParser::level6(TTreeNode *node, TTreeNode **rnode) { // * /
+int TParser::level_muldiv(TTreeNode *node, TTreeNode **rnode) { // * /
 	CG_LOG_BEGIN
 
 	TTreeNode *op = NULL;
-	int ret = level6shift(node, rnode);
+	int ret = level_shift(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	while (tokType == TokMtMul || tokType == TokMtDiv) {
 		op = *rnode;
@@ -484,7 +484,7 @@ int TParser::level6(TTreeNode *node, TTreeNode **rnode) { // * /
 		else *rnode = new TDivNode();
 		(*rnode)->addNode(op);
 		if (getToken()) CG_LOG_RETURN(EXP_ERROR)
-		ret = level6shift(node, &op);
+		ret = level_shift(node, &op);
 
 		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
 		ret = EXP_EXP;
@@ -494,11 +494,11 @@ int TParser::level6(TTreeNode *node, TTreeNode **rnode) { // * /
 	CG_LOG_RETURN(ret)
 }
 
-int TParser::level6shift(TTreeNode *node, TTreeNode **rnode) { // << >>
+int TParser::level_shift(TTreeNode *node, TTreeNode **rnode) { // << >>
 	CG_LOG_BEGIN
 
 	TTreeNode *op = NULL;
-	int ret = level6bit(node, rnode);
+	int ret = level_bit(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	while (tokType == TokShiftLeft || tokType == TokShiftRight) {
 		op = *rnode;
@@ -507,7 +507,7 @@ int TParser::level6shift(TTreeNode *node, TTreeNode **rnode) { // << >>
 		else *rnode = new TShiftRightNode();
 		(*rnode)->addNode(op);
 		if (getToken()) CG_LOG_RETURN(EXP_ERROR)
-		ret = level6bit(node, &op);
+		ret = level_bit(node, &op);
 
 		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
 		ret = EXP_EXP;
@@ -517,11 +517,11 @@ int TParser::level6shift(TTreeNode *node, TTreeNode **rnode) { // << >>
 	CG_LOG_RETURN(ret)
 }
 
-int TParser::level6bit(TTreeNode *node, TTreeNode **rnode) { // _and_ _or_
+int TParser::level_bit(TTreeNode *node, TTreeNode **rnode) { // _and_ _or_
 	CG_LOG_BEGIN
 
 	TTreeNode *op = NULL;
-	int ret = level7(node, rnode);
+	int ret = level_ifelse(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	while (tokType == TokName && (strcmp(rtoken, "_and_") == 0 || strcmp(rtoken, "_or_") == 0)) {
 		op = *rnode;
@@ -530,7 +530,7 @@ int TParser::level6bit(TTreeNode *node, TTreeNode **rnode) { // _and_ _or_
 		else *rnode = new TBitOrNode();
 		(*rnode)->addNode(op);
 		if (getToken()) CG_LOG_RETURN(EXP_ERROR)
-		ret = level7(node, &op);
+		ret = level_ifelse(node, &op);
 
 		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
 		ret = EXP_EXP;
@@ -539,9 +539,9 @@ int TParser::level6bit(TTreeNode *node, TTreeNode **rnode) { // _and_ _or_
 	CG_LOG_RETURN(ret)
 }
 
-int TParser::level7(TTreeNode *node, TTreeNode **rnode) { // ?
+int TParser::level_ifelse(TTreeNode *node, TTreeNode **rnode) { // ?
 	TTreeNode *op = NULL;
-	int ret = level8(node, rnode);
+	int ret = level_not(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	while (tokType == TokSymbol && *token == '?') {
 		op = *rnode;
@@ -560,7 +560,7 @@ int TParser::level7(TTreeNode *node, TTreeNode **rnode) { // ?
 	CG_LOG_RETURN(ret)
 }
 
-int TParser::level8(TTreeNode *node, TTreeNode **rnode) { // !, not, -, $
+int TParser::level_not(TTreeNode *node, TTreeNode **rnode) { // !, not, -, $
 	CG_LOG_BEGIN
 
 	TTreeNode *nd;
@@ -574,7 +574,7 @@ int TParser::level8(TTreeNode *node, TTreeNode **rnode) { // !, not, -, $
 	}
 	else if (tokType == TokMtSub) {
 		if (getToken()) CG_LOG_RETURN(EXP_ERROR)
-		if (level9(node, rnode) & (EXP_ERROR | EXP_EMPTY)) CG_LOG_RETURN(EXP_ERROR)
+		if (level_incdec(node, rnode) & (EXP_ERROR | EXP_EMPTY)) CG_LOG_RETURN(EXP_ERROR)
 		nd = *rnode;
 		*rnode = new TSubNode();
 		(*rnode)->addNode(nd);
@@ -583,20 +583,20 @@ int TParser::level8(TTreeNode *node, TTreeNode **rnode) { // !, not, -, $
 	}
 	else if (tokType == TokName && strcmp(token, "not") == 0) {
 		if (getToken()) CG_LOG_RETURN(EXP_ERROR)
-		if (level9(node, rnode) & (EXP_ERROR | EXP_EMPTY)) CG_LOG_RETURN(EXP_ERROR)
+		if (level_incdec(node, rnode) & (EXP_ERROR | EXP_EMPTY)) CG_LOG_RETURN(EXP_ERROR)
 		nd = *rnode;
 		*rnode = new TNotNode();
 		(*rnode)->addNode(nd);
 
 		CG_LOG_RETURN(EXP_EXP)
 	}
-	CG_LOG_RETURN(level9(node, rnode))
+	CG_LOG_RETURN(level_incdec(node, rnode))
 }
 
-int TParser::level9(TTreeNode *node, TTreeNode **rnode) { // ++, --
+int TParser::level_incdec(TTreeNode *node, TTreeNode **rnode) { // ++, --
 	CG_LOG_BEGIN
 
-	int ret = level10(node, rnode);
+	int ret = level_callfunc(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	if(tokType == TokMtInc) {
 		TTreeNode *nd = *rnode;
@@ -613,20 +613,20 @@ int TParser::level9(TTreeNode *node, TTreeNode **rnode) { // ++, --
 	CG_LOG_RETURN(ret)
 }
 
-int TParser::level10(TTreeNode *node, TTreeNode **rnode) { // ()
+int TParser::level_callfunc(TTreeNode *node, TTreeNode **rnode) { // ()
 	CG_LOG_BEGIN
 
-	int ret = level11(node, rnode);
+	int ret = level_index(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	
 	int r;
-	if((r = level10direct(node, rnode)))
+	if((r = level_call(node, rnode)))
 		ret = r;
 	
 	CG_LOG_RETURN(ret)
 }
 
-int TParser::level10direct(TTreeNode *node, TTreeNode **rnode) { // ()
+int TParser::level_call(TTreeNode *node, TTreeNode **rnode) { // ()
 	CG_LOG_BEGIN
 
 	int ret = 0;
@@ -643,7 +643,7 @@ int TParser::level10direct(TTreeNode *node, TTreeNode **rnode) { // ()
 	CG_LOG_RETURN(ret)
 }
 
-int TParser::level11(TTreeNode *node, TTreeNode **rnode) { // .
+int TParser::level_index(TTreeNode *node, TTreeNode **rnode) { // .
 	CG_LOG_BEGIN
 
 	TTreeNode *op = NULL;
@@ -668,7 +668,7 @@ int TParser::level11(TTreeNode *node, TTreeNode **rnode) { // .
 		*/
 
 		if (getToken()) CG_LOG_RETURN(EXP_ERROR)
-		ret = level10direct(node, rnode);
+		ret = level_call(node, rnode);
 		if(ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
 		ret = EXP_EXP;
 		
@@ -679,13 +679,13 @@ int TParser::level11(TTreeNode *node, TTreeNode **rnode) { // .
 
 int TParser::level12(TTreeNode *node, TTreeNode **rnode) { // :
 
-	return level13(node, rnode);
+	return level_dot(node, rnode);
 }
 
-int TParser::level13(TTreeNode *node, TTreeNode **rnode) { // []
+int TParser::level_dot(TTreeNode *node, TTreeNode **rnode) { // []
 	CG_LOG_BEGIN
 
-	int ret = level14(node, rnode);
+	int ret = level_var(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	while (tokType == TokArrOpen) {
 		TArrIndexNode *arr = new TArrIndexNode();
@@ -770,7 +770,7 @@ bool TParser::isUserTypeLexem(const char *name, int *type) {
 	CG_LOG_RETURN(false)
 }
 
-int TParser::level14(TTreeNode *node, TTreeNode **rnode) {
+int TParser::level_var(TTreeNode *node, TTreeNode **rnode) {
 	CG_LOG_BEGIN
 
 	int ret, index;
