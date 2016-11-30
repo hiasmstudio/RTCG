@@ -78,6 +78,7 @@ class TParser {
     
     int level1(TTreeNode *node, TTreeNode **rnode);
     int level_assign(TTreeNode *node, TTreeNode **rnode);  // =
+    int level_ifelse(TTreeNode *node, TTreeNode **rnode);  // ?
     int level_concat(TTreeNode *node, TTreeNode **rnode);  // & &&
     int level_or(TTreeNode *node, TTreeNode **rnode);  // or
     int level_and(TTreeNode *node, TTreeNode **rnode);  // and
@@ -86,7 +87,6 @@ class TParser {
     int level_muldiv(TTreeNode *node, TTreeNode **rnode);  // * /
     int level_shift(TTreeNode *node, TTreeNode **rnode);  // << >>
     int level_bit(TTreeNode *node, TTreeNode **rnode);  // _or_ _and_
-    int level_ifelse(TTreeNode *node, TTreeNode **rnode);  // ?
     int level_not(TTreeNode *node, TTreeNode **rnode);  // !, not, -, $
     int level_incdec(TTreeNode *node, TTreeNode **rnode);  // ++, --
 	int level_call(TTreeNode *node, TTreeNode **rnode); // ()

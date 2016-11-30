@@ -317,7 +317,7 @@ int TParser::level_assign(TTreeNode *node, TTreeNode **rnode) { // =, -=, +=, *=
 	CG_LOG_BEGIN
 
 	TTreeNode *op = NULL;
-	int ret = level_concat(node, rnode);
+	int ret = level_ifelse(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	while (tokType == TokAssign || tokType == TokMtAddEq || tokType == TokMtSubEq || tokType == TokMtMulEq || tokType == TokMtDivEq) {
 		op = *rnode;
@@ -340,7 +340,28 @@ int TParser::level_assign(TTreeNode *node, TTreeNode **rnode) { // =, -=, +=, *=
 		}
 		(*rnode)->addNode(op);
 		if (getToken()) CG_LOG_RETURN(SYN_ERROR)
-		ret = level_concat(node, &op);
+		ret = level_ifelse(node, &op);
+
+		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
+		ret = EXP_EXP;
+		(*rnode)->addNode(op);
+	}
+	CG_LOG_RETURN(ret)
+}
+
+int TParser::level_ifelse(TTreeNode *node, TTreeNode **rnode) { // ?
+	TTreeNode *op = NULL;
+	int ret = level_concat(node, rnode);
+	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
+	while (tokType == TokSymbol && *token == '?') {
+		op = *rnode;
+		*rnode = new TExpIfNode();
+		(*rnode)->addNode(op);
+		ret = level1(node, &op);
+		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
+		(*rnode)->addNode(op);
+		if (getToken() || tokType != TokSymbol || *token != ':') CG_LOG_RETURN(EXP_ERROR)
+		ret = level1(node, &op);
 
 		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
 		ret = EXP_EXP;
@@ -521,7 +542,7 @@ int TParser::level_bit(TTreeNode *node, TTreeNode **rnode) { // _and_ _or_
 	CG_LOG_BEGIN
 
 	TTreeNode *op = NULL;
-	int ret = level_ifelse(node, rnode);
+	int ret = level_not(node, rnode);
 	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
 	while (tokType == TokName && (strcmp(rtoken, "_and_") == 0 || strcmp(rtoken, "_or_") == 0)) {
 		op = *rnode;
@@ -530,28 +551,7 @@ int TParser::level_bit(TTreeNode *node, TTreeNode **rnode) { // _and_ _or_
 		else *rnode = new TBitOrNode();
 		(*rnode)->addNode(op);
 		if (getToken()) CG_LOG_RETURN(EXP_ERROR)
-		ret = level_ifelse(node, &op);
-
-		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
-		ret = EXP_EXP;
-		(*rnode)->addNode(op);
-	}
-	CG_LOG_RETURN(ret)
-}
-
-int TParser::level_ifelse(TTreeNode *node, TTreeNode **rnode) { // ?
-	TTreeNode *op = NULL;
-	int ret = level_not(node, rnode);
-	if (ret & EXP_ERROR) CG_LOG_RETURN(EXP_ERROR)
-	while (tokType == TokSymbol && *token == '?') {
-		op = *rnode;
-		*rnode = new TExpIfNode();
-		(*rnode)->addNode(op);
-		ret = level1(node, &op);
-		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
-		(*rnode)->addNode(op);
-		if (getToken() || tokType != TokSymbol || *token != ':') CG_LOG_RETURN(EXP_ERROR)
-		ret = level1(node, &op);
+		ret = level_not(node, &op);
 
 		if (ret & (EXP_EMPTY | EXP_ERROR)) CG_LOG_RETURN(EXP_ERROR)
 		ret = EXP_EXP;
