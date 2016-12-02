@@ -13,7 +13,7 @@ typedef struct {
 	const char *ainfo;
 } TFuncMap;
 
-#define func_map_size 27
+#define func_map_size 28
 extern const TFuncMap func_map[func_map_size];
 
 typedef struct {

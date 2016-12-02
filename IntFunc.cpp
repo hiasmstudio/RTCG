@@ -225,6 +225,10 @@ TValue *map_expof(void *node, TArgs *args, Context &context) {
 	return new TValue(args->at(0)->value->getCodeType());
 }
 
+TValue *map_isnull(void *node, TArgs *args, Context &context) {
+	return new TValue(args->at(0)->value->getType() == DATA_NONE ? 1 : 0);
+}
+
 TValue *convert(TValue *val, int type, Context &context) {
 	if(type == 0)
 		return val;
@@ -377,6 +381,7 @@ const TFuncMap func_map[] = {
 	{ "event", -1, map_event, "ename[, args, ...]"},
 	{ "typeof", 1, map_typeof, "var"},
 	{ "expof", 1, map_expof, "var"},
+	{ "isnull", 1, map_isnull, "var"},
 	{ "d", 1, map_d, "name"},
 	{ "linked", 1, map_linked, "name"},
 	{ "isdef", 1, map_isdef, "name"},
