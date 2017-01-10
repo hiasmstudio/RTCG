@@ -75,8 +75,13 @@ TValue* TValue::fromProperty(id_element e, id_prop prop) {
 		case data_int:
 		case data_flags:
 		case data_combo:
-		case data_color:
 			return new TValue(cgt->propToInteger(prop));
+		case data_color:
+#ifdef COLOR_INT
+			return new TValue(cgt->propToInteger(prop));
+#else
+			return new TValue(cgt->propToString(prop));
+#endif
 		case data_str:
 		case data_list:
 			return new TValue(cgt->propToString(prop));
