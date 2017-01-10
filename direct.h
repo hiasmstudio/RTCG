@@ -15,6 +15,8 @@ extern std::string __call_level;
 #define LOG_
 #define CALL_TRACE_
 
+#define _DUMP_CODE_TREE
+
 #ifdef _LOG_
 #define cg_log(_t)  std::string __buf; _log_text_(_t);
 #define CG_LOG_BEGIN {cg_log(__buf.append(__level).append("+ ").append(__PRETTY_FUNCTION__).append("[").append("").append("]\n")) inclevel(); }

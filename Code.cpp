@@ -36,7 +36,9 @@ int TCode::parseUnit(id_element e, const char *unit) {
 
 	TParser *parser = new TParser();
 	parser->createCodeTree(root, codePath, fileName.c_str());
+#ifdef DUMP_CODE_TREE
 	dump();
+#endif
 	if ((ret = parser->errCode))
 		cgt->trace(parser->errCode);
 	delete parser;
