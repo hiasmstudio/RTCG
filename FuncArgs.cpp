@@ -82,9 +82,18 @@ TValue* TValue::fromProperty(id_element e, id_prop prop) {
 #else
 			return new TValue(cgt->propToString(prop));
 #endif
-		case data_str:
 		case data_list:
+		case data_code:
 			return new TValue(cgt->propToString(prop));
+		case data_str: {
+			std::string str(cgt->propToString(prop));
+			size_t start_pos = 0;
+			while((start_pos = str.find("\n", start_pos)) != std::string::npos) {
+				str.replace(start_pos, 1, "\\n");
+				start_pos += 3;
+			}
+			return new TValue(str.c_str());
+		}
 		case data_real:
 			return new TValue(cgt->propToReal(prop));
 		case data_comboEx:
