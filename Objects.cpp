@@ -105,6 +105,15 @@ TBlockItem::~TBlockItem() {
 	delete name;
 }
 
+void TBlockItem::clear() {
+	for (int i = 0; i < count; i++)
+		TValue::free(items[i]);
+	delete items;
+	items = NULL;
+	count = 0;
+	expand = 0;
+}
+
 void TBlockItem::addValue(TValue *item) {
 	count++;
 	if (count > expand) {
@@ -134,7 +143,7 @@ TBlockItemObject::TBlockItemObject(const char *name) : TScriptObject(name) {
 	CG_LOG_BEGIN
 
 	ref = 0;
-	count = 11;
+	count = 12;
 	firstPrint = true;
 	mtdNames = (TSORecord*) malloc(sizeof (TSORecord) * count);
 	mtdNames[0] = makeMethod("print", -1);
@@ -148,6 +157,7 @@ TBlockItemObject::TBlockItemObject(const char *name) : TScriptObject(name) {
 	mtdNames[8] = makeMethod("empty", 0);
 	mtdNames[9] = makeMethod("build", 0);
 	mtdNames[10] = makeField("name");
+	mtdNames[11] = makeMethod("load", 1);
 
 	block = new TBlockItem(name);
 }
@@ -182,6 +192,18 @@ void TBlockItemObject::save(const char *fname, bool resource = true) {
 	if(resource) {
 		cgt->resAddFile(fname);
 	}
+}
+
+void TBlockItemObject::load(const char *fname) {
+	block->clear();
+	FILE *f = fopen(fname, "r+");
+	char line[512];
+	while(!feof(f)) {
+		line[0] = '\0';
+		fgets(line, 512, f);
+		block->addValue(new TValue(line, true));
+	}
+	fclose(f);
 }
 
 TValue *TBlockItemObject::execMethod(TTreeNode *node, long index, Context &context) {
@@ -233,6 +255,14 @@ TValue *TBlockItemObject::execMethod(TTreeNode *node, long index, Context &conte
 		}
 		case 10:
 			CG_LOG_RETURN(new TValue(block->name))
+		case 11: {
+			char *s = cgt->ReadStrParam(PARAM_CODE_PATH, context.element);
+			std::string file(s);
+			delete[] s;
+			file.append(context.args->value(0)->toStr());
+			load(file.c_str());
+			break;
+		}
 	}
 	
 	CG_LOG_RETURN(new TValue((TScriptObject *)this))

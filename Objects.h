@@ -75,6 +75,7 @@ public:
 	~TBlockItem();
 
 	void addValue(TValue *item);
+	void clear();
 	std::string asText();
 	std::string asCode();
 };
@@ -86,6 +87,7 @@ private:
 	
 	void print(TArgs *args);
 	void save(const char *fname, bool resource);
+	void load(const char *fname);
 	void copyHere(TArgs *args);
 public:
 	TBlockItem *block;
