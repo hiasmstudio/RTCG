@@ -5,6 +5,7 @@
 #include "IntFunc.h"
 
 #include "share.h"
+#include "Runner.h"
 
 const char *procNames[PROC_COUNT] = {
 	"{script proc}",
@@ -122,7 +123,9 @@ TValue* TValue::fromProperty(id_element e, id_prop prop) {
 			return new TValue(aobj);
 		}
 		case data_element:
-			return new TValue(new TElementObject(cgt->propGetLinkedElement(e, cgt->propGetName(prop))));
+			id_element le = cgt->propGetLinkedElement(e, cgt->propGetName(prop));
+			erun->init(le);
+			return new TValue(new TElementObject(le));
 	}
 	return new TValue();
 }
