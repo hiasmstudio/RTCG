@@ -1179,15 +1179,21 @@ int TParser::argFuncLexem(TVarItem *value) {
 int TParser::argUserTypeLexem(TTreeNode **node, int type) {
 	CG_LOG_BEGIN
 
-	*node = new TCastNode(type);
-			
-	if (getToken() && (tokType != TokSymbol || *rtoken != '(')) CG_LOG_RETURN(SYN_ARGS_SYNTAX)
+	if (getToken()) CG_LOG_RETURN(SYN_ERROR)
 
-	TTreeNode *nd;
-	int ret;
-	if ((ret = level1(*node, &nd)) & EXP_ERROR) CG_LOG_RETURN(SYN_ARGS_SYNTAX)
-	(*node)->addNode(nd);
-	if (getToken() && (tokType != TokSymbol || *rtoken != ')')) CG_LOG_RETURN(SYN_ARGS_SYNTAX)
+	if (tokType == TokSymbol && *rtoken == '(') {
+		*node = new TCastNode(type);
+
+		TTreeNode *nd;
+		int ret;
+		if ((ret = level1(*node, &nd)) & EXP_ERROR) CG_LOG_RETURN(SYN_ARGS_SYNTAX)
+		(*node)->addNode(nd);
+		if (getToken() && (tokType != TokSymbol || *rtoken != ')')) CG_LOG_RETURN(SYN_ARGS_SYNTAX)
+	}
+	else {
+		putToken();
+		*node = new TIntegerNode(type);
+	}	
 
 	CG_LOG_RETURN(0)
 }
