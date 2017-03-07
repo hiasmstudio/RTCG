@@ -2,8 +2,7 @@
 
 class TElementRunner {
 private:
-    TCode **codeList;
-    int codeCount;
+	std::vector<TCode *> codeList;
 
     TCode *find(const char *unit);
     int Add(TCode *code);

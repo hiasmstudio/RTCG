@@ -13,15 +13,13 @@ extern PCodeGenTools cgt;
 TElementRunner::TElementRunner() {
 	CG_LOG_BEGIN
 
-	codeList = NULL;
-	codeCount = 0;
 	tools = NULL;
 }
 
 TElementRunner::~TElementRunner() {
-	for (int i = 0; i < codeCount; i++)
-		delete codeList[i];
-	delete codeList;
+	for(TCode *item : codeList)
+		delete item;
+	codeList.clear();
 	if(tools)
 		delete tools;
 
@@ -31,9 +29,7 @@ TElementRunner::~TElementRunner() {
 int TElementRunner::Add(TCode *code) {
 	CG_LOG_BEGIN
 
-	codeCount++;
-	codeList = (TCode**) realloc(codeList, sizeof (TCode*) * codeCount);
-	codeList[codeCount - 1] = code;
+	codeList.push_back(code);
 
 	CG_LOG_RETURN(0)
 }
@@ -43,9 +39,9 @@ TCode *TElementRunner::find(const char *unit) {
 
 	ASSERT(unit, "unit is NULL")
 
-	for (int i = 0; i < codeCount; i++)
-		if (strcasecmp(codeList[i]->name, unit) == 0)
-			CG_LOG_RETURN(codeList[i])
+	for(TCode *item : codeList)
+		if (strcasecmp(item->name, unit) == 0)
+			CG_LOG_RETURN(item)
 
 	CG_LOG_RETURN(NULL)
 }
