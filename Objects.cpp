@@ -302,7 +302,9 @@ TBlockObject::~TBlockObject() {
 }
 
 TBlockItemObject *TBlockObject::regBlock(const char *name) {
-	TBlockItemObject *blk = new TBlockItemObject(name);
+	TBlockItemObject *blk = searchBlock(name);
+	if(!blk)
+		blk = new TBlockItemObject(name);
 	items.push_back((TBlockItemObject *)copyObject(blk));
 	return blk;
 }
