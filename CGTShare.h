@@ -84,6 +84,7 @@
 #define  PARAM_SDE_WIDTH          9
 #define  PARAM_SDE_HEIGHT         10
 #define  PARAM_COMPILER           11
+#define  PARAM_BUILD_CONTER       12
 
 // ������ ��� ������ � ����������� ��������������
 #define  CG_SUCCESS          0
@@ -410,6 +411,9 @@ struct TCodeGenTools {
 		}
 		
 		return false;
+	}
+	int getBuildCounter(id_element e) {
+		return GetParam(PARAM_BUILD_CONTER, &e);
 	}
 };
 

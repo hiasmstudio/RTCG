@@ -705,7 +705,7 @@ TSDKObject::TSDKObject(id_sdk sdk) : TScriptObject("sdk") {
 }
 
 void TSDKObject::initMap() {
-	count = 6;
+	count = 7;
 	mtdNames = (TSORecord*) malloc(sizeof (TSORecord) * count);
 	mtdNames[0] = makeMethod("initall", 0);
 	mtdNames[1] = makeMethod("child", 1);
@@ -713,6 +713,7 @@ void TSDKObject::initMap() {
 	mtdNames[3] = makeMethod("get_parent_sdk", 0);
 	mtdNames[4] = makeField("numelements");
 	mtdNames[5] = makeField("id");
+	mtdNames[6] = makeField("counter");
 }
 
 void TSDKObject::initAll() {
@@ -752,6 +753,12 @@ TValue *TSDKObject::execMethod(TTreeNode *node, long index, Context &context) {
 			CG_LOG_RETURN(new TValue(cgt->sdkGetCount(this->sdk)))
 		case 5:
 			CG_LOG_RETURN(new TValue((int)(long)this->sdk))
+		case 6: {
+			id_element e = cgt->sdkGetElement(sdk, 0);
+			if(!e)
+				e = cgt->sdkGetParent(sdk);
+			CG_LOG_RETURN(new TValue(cgt->getBuildCounter(e)))
+		}
 	}
 	CG_LOG_RETURN(new TValue())
 }
