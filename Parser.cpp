@@ -96,6 +96,15 @@ int TParser::getToken() {
 			do {
 				line++;
 			} while (*line >= '0' && *line <= '9');
+			if(*line == '.') {
+				tokType = TokReal;
+				do {
+					line++;
+				} while (*line >= '0' && *line <= '9');
+			}
+			else {
+				tokType = TokNumber;
+			}
 			i = (int) (line - buf);
 			if (token == rtoken)
 				token = NULL;
@@ -103,7 +112,6 @@ int TParser::getToken() {
 			token = rtoken;
 			strncpy(rtoken, buf, i);
 			rtoken[i] = '\0';
-			tokType = TokNumber;
 		} else if (*line == '[') {
 			tokType = TokArrOpen;
 			line++;
@@ -779,6 +787,10 @@ int TParser::level_var(TTreeNode *node, TTreeNode **rnode) {
 
 	if (tokType == TokNumber) {
 		*rnode = new TIntegerNode(atoi(token));
+		ret = EXP_CONST;
+	}
+	else if (tokType == TokReal) {
+		*rnode = new TRealNode(atof(token));
 		ret = EXP_CONST;
 	} else if (tokType == TokString) {
 		*rnode = new TStringNode(token);
