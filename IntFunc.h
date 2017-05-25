@@ -13,7 +13,7 @@ typedef struct {
 	const char *ainfo;
 } TFuncMap;
 
-#define func_map_size 28
+#define func_map_size 29
 extern const TFuncMap func_map[func_map_size];
 
 typedef struct {
@@ -24,5 +24,6 @@ typedef std::list<TUserType> TUserTypes;
 
 extern TUserTypes userTypes;
 extern TValue *convert(TValue *val, int type, Context &context);
+extern TValue *map_get(void *node, TArgs *args, Context &context);
 
 #endif

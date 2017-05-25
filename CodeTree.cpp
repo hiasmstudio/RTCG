@@ -631,6 +631,53 @@ TValue *TDivNode::run(Context &context) {
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+TValue *TStringNode::run(Context &context) {
+	if(this->value->flags & FLG_CODE == 0)
+		return TConstNode::run(context);
+
+	std::string s = this->value->toStr();
+	int i = s.find("${");
+	if(i < 0)
+		return TConstNode::run(context);
+
+	TValue *result = new TValue();
+	result->makeArray();
+	int p = 0;
+	while(i >= 0) {
+		if(i - p) {
+			char buf[i - p + 1];
+			s.copy(buf, i - p, p);
+			buf[i-p] = '\0';
+			result->toArr()->add(new TValue(buf, true), false);
+		}
+		p = s.find("}", i+2);
+		int len = p - i - 2;
+		char name[len+1];
+		s.copy(name, len, i + 2);
+		name[len] = '\0';
+		TArgs *args = new TArgs();
+		args->add(new TValue(name));
+		TValue *val = map_get(this, args, context);
+		delete args;
+		
+		result->toArr()->add(val, false);
+		TValue::free(val);
+		
+		i = s.find("${", p++);
+	}
+	if(p < s.size()) {
+		i = s.size();
+		char buf[i - p + 1];
+		s.copy(buf, i - p, p);
+		buf[i-p] = '\0';
+		result->toArr()->add(new TValue(buf, true), false);
+	}
+	
+	return result;
+}
+
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 TValue *TAssignNode::run(Context &context) {
 	CG_LOG_BEGIN
 

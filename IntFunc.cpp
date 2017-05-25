@@ -1,5 +1,6 @@
 #include "IntFunc.h"
 #include "Runner.h"
+#include "ElementData.h"
 #include <regex>
 
 #define RET_EMPTY return new TValue("empty");
@@ -317,6 +318,36 @@ TValue *map_sub(void *node, TArgs *args, Context &context) {
 	return var->duplicate();
 }
 
+TValue *map_get(void *node, TArgs *args, Context &context) {
+	if(args->size() == 0)
+		return new TValue();
+	
+	const char* name = args->value(0)->toStr();
+	// is local var
+	TVarItem *item = context.func->vars->findVarByName(name);
+	if(item)
+		return item->value->duplicate();
+	
+	// is func args
+	item = context.func->args->findVarByName(name);
+	if(item)
+		return item->value->duplicate();
+	
+	// is element property
+	id_prop prop = cgt->getPropByName(context.element, name);
+	if(prop) {
+		return TValue::fromProperty(context.element, prop);
+	}
+	
+	// is this field
+	TElementObject *obj = new TElementObject(context.element);
+	script_proc proc = obj->getProc(args->value(0), context);
+	if(proc != -1)
+		return obj->execMethod((TTreeNode*)node, proc, context);
+	
+	return new TValue();
+}
+
 TValue *map_regex_replace(void *node, TArgs *args, Context &context) {
 	std::regex r(args->value(1)->toStr());
 	std::string result = std::regex_replace(args->value(0)->toStr(), r, args->value(2)->toStr());
@@ -386,6 +417,7 @@ const TFuncMap func_map[] = {
 	{ "linked", 1, map_linked, "name"},
 	{ "isdef", 1, map_isdef, "name"},
 	{ "sub", -1, map_sub, "name[, type]"},
+	{ "get", 1, map_get, "name"},
 	
 	{ "regex_replace", 3, map_regex_replace, "source, expression, format"},
 

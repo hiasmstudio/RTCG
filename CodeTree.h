@@ -258,6 +258,7 @@ public:
 		value->setValueStr(val);
 		if (code) value->flags |= FLG_CODE;
 	}
+	TValue *run(Context &context);
 };
 
 class TVarNode : public TTreeNode {
