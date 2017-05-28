@@ -183,5 +183,7 @@ public:
 };
 
 extern TVarsList *gvars;
+extern char *stringLexem;
+extern char *concatLexem;
 
 #endif

@@ -348,6 +348,37 @@ TValue *map_get(void *node, TArgs *args, Context &context) {
 	return new TValue();
 }
 
+char *_stringLexem = NULL;
+char *_concatLexem = NULL;
+
+void init_buffer(char* &buf, const char *value) {
+	if(buf)
+		delete buf;
+	int len = strlen(value);
+	buf = new char[len+1];
+	buf[len] = '\0';
+	strcpy(buf, value);
+}
+
+TValue *map_param(void *node, TArgs *args, Context &context) {
+	const char* name = args->value(0)->toStr();
+	if(strcmp(name, "string_lexem") == 0) {
+		if(args->size() == 1)
+			return new TValue(stringLexem, true);
+		
+		init_buffer(_stringLexem, args->value(1)->toStr());
+		stringLexem = _stringLexem;
+	}
+	if(strcmp(name, "concat_lexem") == 0) {
+		if(args->size() == 1)
+			return new TValue(concatLexem, true);
+		
+		init_buffer(_concatLexem, args->value(1)->toStr());
+		concatLexem = _concatLexem;
+	}
+	return new TValue();
+}
+
 TValue *map_regex_replace(void *node, TArgs *args, Context &context) {
 	std::regex r(args->value(1)->toStr());
 	std::string result = std::regex_replace(args->value(0)->toStr(), r, args->value(2)->toStr());
@@ -418,6 +449,7 @@ const TFuncMap func_map[] = {
 	{ "isdef", 1, map_isdef, "name"},
 	{ "sub", -1, map_sub, "name[, type]"},
 	{ "get", 1, map_get, "name"},
+	{ "param", 1, map_param, "name[,value]"},
 	
 	{ "regex_replace", 3, map_regex_replace, "source, expression, format"},
 
