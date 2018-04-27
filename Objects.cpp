@@ -565,7 +565,7 @@ TValue *TElementObject::execMethod(TTreeNode *node, long index, Context &context
 				CG_LOG_RETURN(point ? new TValue(new TPointObject(point)) : new TValue(0))
 			}
 			case 17:
-				CG_LOG_RETURN(new TValue(new TSDKObject(cgt->elGetSDK(e))))
+				CG_LOG_RETURN(new TValue(new TSDKObject(cgt->elGetSDKByIndex(e, args->value(0)->toInt()))))
 			case 18:
 				CG_LOG_RETURN(new TValue(new TElementObject(cgt->elGetSDK(e))))
 			case 19:
